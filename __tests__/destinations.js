@@ -1,5 +1,20 @@
 const supertest = require('supertest')
 const server = require('../server')
+const db = require('../data/config')
+
+
+beforeEach( async () => {
+    await db.seed.run()
+})
+
+beforeAll( async () => {
+    await db.migrate.rollback()
+    await db.migrate.latest()
+})
+
+afterAll( async () => {
+    await db.destroy()
+})
 
 describe("destinations integration tests", () => {
     it("gets a list of all destinations", async () => {
@@ -8,7 +23,7 @@ describe("destinations integration tests", () => {
         expect(res.type).toBe("application/json")
         expect(res.body.length).toBeGreaterThanOrEqual(3)
         expect(res.body[0].id).toBe(1)
-        expect(res.body[0].name).toBe(/hawaii/i)
+        expect(res.body[0].name).toBe("Hawaii")
     })
 
     it("gets a single destination by id", async () => {
@@ -16,7 +31,7 @@ describe("destinations integration tests", () => {
         expect(res.statusCode).toBe(200)
         expect(res.type).toBe("application/json")
         expect(res.body.id).toBe(3)
-        expect(res.body.name).toBe(/whistler/i)
+        expect(res.body.name).toBe("Mallorca")
     })
 
     it('returns an error when the destination not found', async ()=> {
@@ -31,7 +46,7 @@ describe("destinations integration tests", () => {
         expect(res.statusCode).toBe(201)
         expect(res.type).toBe("application/json")
         expect(res.body.id).toBeDefined()
-        expect(res.body.name).toBe(/rome/i)
+        expect(res.body.name).toBe("Rome")
     })
 
     it("deletes a destination", async () => {
